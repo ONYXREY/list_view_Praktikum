@@ -6,7 +6,10 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -82,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage("Pilih tindakan yang ingin dilakukan: ")
 
         builder.setPositiveButton("Update") {_, _ ->
-            // update
+            showUpdateDialog(position, selectedItem, data, adapter)
         }
 
         builder.setNegativeButton("Hapus") {_, _ ->
@@ -95,6 +98,57 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
         builder.setNeutralButton("Batal") {dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
+    private fun showUpdateDialog(
+        position: Int,
+        oldValue: String,
+        data: MutableList<String>,
+        adapter: ArrayAdapter<String>
+    ){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Update Data")
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 40, 50, 10 )
+
+        val tvOld = TextView(this)
+        tvOld.text = "Data lama: $oldValue"
+        tvOld.textSize = 16f
+
+        val etNew = EditText(this)
+        etNew.hint = "Masukkan Data Baru"
+        etNew.setText(oldValue)
+
+        layout.addView(tvOld)
+        layout.addView(etNew)
+
+        builder.setView(layout)
+
+        builder.setPositiveButton("Simpan") {dialog, _ ->
+            val newValue = etNew.text.toString().trim()
+            if (newValue.isNotEmpty()) {
+                data[position] = newValue
+                adapter.notifyDataSetChanged()
+                Toast.makeText(
+                    this,
+                    "Data Di Update JadiL $newValue",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }else{
+                Toast.makeText(
+                    this,
+                    "Data Baru Tidak Boleh Kosong!",
+                    Toast.LENGTH_SHORT
+
+                ).show()
+            }
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Batal") { dialog, _ ->
             dialog.dismiss()
         }
         builder.create().show()
